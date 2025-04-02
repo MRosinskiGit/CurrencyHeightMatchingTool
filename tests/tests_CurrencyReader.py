@@ -102,7 +102,7 @@ def test_CurrencyReader_height_matching_recalculation(api_mock, height, expected
 
 
 @pytest.mark.parametrize(
-    "height,expected", [[1.76, "BAKE"], [1.86, "PUPS"], [1.54, "CNY"]]
+    "height,expected", [[1.76, "BAKE"], [1.86, "PUPS"], [1.54, "DAO"]]
 )
 def test_CurrencyReader_height_matching_crypto(api_mock, height, expected):
     Reader = CurrencyReader(os.getenv("STOCK_API"), "PLN")
@@ -111,7 +111,7 @@ def test_CurrencyReader_height_matching_crypto(api_mock, height, expected):
 
 
 @pytest.mark.parametrize(
-    "height,expected", [[1.76, "BAKE"], [1.86, "PUPS"], [1.54, "CNY"]]
+    "height,expected", [[1.76, "BAKE"], [1.86, "PUPS"], [1.54, "DAO"]]
 )
 def test_CurrencyReader_height_matching_crypto_recalculation(
     api_mock, height, expected
