@@ -9,7 +9,28 @@ from data.countries import currency_codes
 
 
 class CurrencyReader:
+    """A class to handle currency data retrieval, conversion, and matching operations.
+
+    This class connects to the CurrencyFreaks API to get current exchange rates,
+    allows changing the base currency, and provides methods to find currencies
+    closest to a given value.
+
+    Attributes:
+        currencies_data_base (dict): Raw currency data from API.
+        real_currencies_recalculated (dict): Real currencies converted to base currency.
+        crypto_currencies_recalculated (dict): Crypto currencies converted to base currency.
+    """
+
     def __init__(self, api_key, base_currency: str):
+        """Initializes the CurrencyReader with API key and base currency.
+
+        Args:
+            api_key (str): API key for CurrencyFreaks service.
+            base_currency (str): 3-letter currency code to use as base for conversions.
+
+        Raises:
+            ValueError: If currency data cannot be loaded.
+        """
         logger.info("Creating CurrencyReader object.")
         self.__base_currency = base_currency
         self.currencies_data_base = None
@@ -19,20 +40,25 @@ class CurrencyReader:
         self.Deepseek = Facts(os.getenv("DEEPSEEK_API"))
 
         self.download_currency_data()
-        # Todo Remove below - only for limiting api usage
-        # with open(r"tests/test_data/response_data.json") as f:
-        #     self.currencies_data_base = json.load(f)
-        #     self.__recalculate_base(self.__base_currency)
 
         if self.currencies_data_base is None:
             raise ValueError("No currency data available.")
 
     @property
     def base_currency(self):
+        """str: Gets the current base currency code."""
         return self.__base_currency
 
     @base_currency.setter
     def base_currency(self, new_currency):
+        """Sets a new base currency and recalculates all rates.
+
+        Args:
+            new_currency (str): 3-letter currency code to set as new base.
+
+        Raises:
+            ValueError: If the currency symbol is not found in database.
+        """
         logger.info(f"Changing base currency to {new_currency}")
         if self.currencies_data_base.get("rates").get(new_currency) is None:
             logger.critical(f"Provided symbol name {new_currency} not found.")
@@ -42,6 +68,11 @@ class CurrencyReader:
         self.__recalculate_base(self.__base_currency)
 
     def download_currency_data(self):
+        """Downloads the latest currency data from API.
+
+        Raises:
+            ConnectionError: If API request fails.
+        """
         logger.info("Downloading currencies info.")
         api_request = requests.get(self.__BASE_URL)
         if api_request.status_code != ResponseCode["ok"]:
@@ -53,6 +84,13 @@ class CurrencyReader:
         self.__recalculate_base(self.__base_currency)
 
     def __recalculate_base(self, base):
+        """Recalculates all currency rates relative to the specified base currency.
+
+        Separates real currencies from cryptocurrencies during recalculation.
+
+        Args:
+            base (str): The currency code to use as new base for calculations.
+        """
         logger.info(f"Recalculating all currency rates to {base} currency.")
         rates = self.currencies_data_base.get("rates")
         counties_currency_codes = [symbol for country, symbol in currency_codes.items()]
@@ -80,6 +118,14 @@ class CurrencyReader:
         logger.success("Recalculation successfully.")
 
     def find_closest_currency(self, height):
+        """Finds the real currency with exchange rate closest to the given value.
+
+        Args:
+            height (float): Value to compare currency rates against.
+
+        Returns:
+            str: 3-letter code of the closest currency.
+        """
         logger.info("Matching global Currency that matches user's height.")
         currency_symbol = min(
             self.real_currencies_recalculated,
@@ -91,6 +137,14 @@ class CurrencyReader:
         return currency_symbol
 
     def find_closest_crypto(self, height):
+        """Finds the cryptocurrency with exchange rate closest to the given value.
+
+        Args:
+            height (float): Value to compare cryptocurrency rates against.
+
+        Returns:
+            str: Symbol of the closest cryptocurrency.
+        """
         logger.info("Matching crypto that matches user's height.")
         crypto_symbol = min(
             self.crypto_currencies_recalculated,
