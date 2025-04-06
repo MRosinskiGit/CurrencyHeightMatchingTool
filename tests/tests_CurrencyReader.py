@@ -9,7 +9,7 @@ from src.CurrencyReader import CurrencyReader
 
 load_dotenv()
 logger.configure(handlers={})
-
+FAKE_API = "00000000000000000000000"
 
 @pytest.fixture
 def load_json():
@@ -33,7 +33,7 @@ def api_mock(load_json, status_code=200, response_data_file="response_data.json"
 
 @pytest.mark.parametrize("base_currency", ["USD", "PLN", "EUR"])
 def test_CurrencyReader_init(api_mock, base_currency):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), base_currency)
+    Reader = CurrencyReader(FAKE_API, base_currency)
     assert Reader is not None
     assert Reader.currencies_data_base is not None
     assert Reader.real_currencies_recalculated is not None
@@ -41,7 +41,7 @@ def test_CurrencyReader_init(api_mock, base_currency):
 
 
 def test_CurrencyReader_USD_recalculation(api_mock):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "USD")
+    Reader = CurrencyReader(FAKE_API, "USD")
     recalculate_to_floats = {key: float(value) for key, value in Reader.currencies_data_base["rates"].items()}
     all_rates = {}
     all_rates.update(Reader.real_currencies_recalculated)
@@ -50,7 +50,7 @@ def test_CurrencyReader_USD_recalculation(api_mock):
 
 
 def test_CurrencyReader_EUR_recalculation(api_mock):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "EUR")
+    Reader = CurrencyReader(FAKE_API, "EUR")
     recalculate_to_floats = {key: float(value) for key, value in Reader.currencies_data_base["rates"].items()}
     all_rates = {}
     all_rates.update(Reader.real_currencies_recalculated)
@@ -62,7 +62,7 @@ def test_CurrencyReader_EUR_recalculation(api_mock):
 
 
 def test_CurrencyReader_recalculate_base(api_mock, new_base="EUR"):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "USD")
+    Reader = CurrencyReader(FAKE_API, "USD")
     recalculate_to_floats = {key: float(value) for key, value in Reader.currencies_data_base["rates"].items()}
     all_rates = {}
     all_rates.update(Reader.real_currencies_recalculated)
@@ -78,14 +78,14 @@ def test_CurrencyReader_recalculate_base(api_mock, new_base="EUR"):
 
 @pytest.mark.parametrize("height,expected", [[1.76, "TTD"], [1.86, "CNY"], [1.54, "BRL"]])
 def test_CurrencyReader_height_matching(api_mock, height, expected):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "PLN")
+    Reader = CurrencyReader(FAKE_API, "PLN")
     finding = Reader.find_closest_currency(height)
     assert finding == expected
 
 
 @pytest.mark.parametrize("height,expected", [[1.76, "TTD"], [1.86, "CNY"], [1.54, "BRL"]])
 def test_CurrencyReader_height_matching_recalculation(api_mock, height, expected):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "EUR")
+    Reader = CurrencyReader(FAKE_API, "EUR")
     Reader.base_currency = "PLN"
     finding = Reader.find_closest_currency(height)
     assert finding == expected
@@ -93,14 +93,14 @@ def test_CurrencyReader_height_matching_recalculation(api_mock, height, expected
 
 @pytest.mark.parametrize("height,expected", [[1.76, "BAKE"], [1.86, "PUPS"], [1.54, "DAO"]])
 def test_CurrencyReader_height_matching_crypto(api_mock, height, expected):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "PLN")
+    Reader = CurrencyReader(FAKE_API, "PLN")
     finding = Reader.find_closest_crypto(height)
     assert finding == expected
 
 
 @pytest.mark.parametrize("height,expected", [[1.76, "BAKE"], [1.86, "PUPS"], [1.54, "DAO"]])
 def test_CurrencyReader_height_matching_crypto_recalculation(api_mock, height, expected):
-    Reader = CurrencyReader(os.getenv("STOCK_API"), "EUR")
+    Reader = CurrencyReader(FAKE_API, "EUR")
     Reader.base_currency = "PLN"
     finding = Reader.find_closest_crypto(height)
     assert finding == expected
