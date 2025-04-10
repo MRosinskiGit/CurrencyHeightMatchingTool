@@ -109,7 +109,7 @@ class App:
         3. Update the UI as the fact is being streamed
         """
         height = self.input_height.get()
-        crypto_symbol = self.logic.find_closest_crypto(float(height))
+        crypto_symbol = self.logic.find_closest_crypto(height)
 
         def __update_text():
             """Internal function to handle the crypto fact UI updates."""
@@ -136,7 +136,7 @@ class App:
         3. Update the UI as the fact is being streamed
         """
         height = self.input_height.get()
-        currency_symbol = self.logic.find_closest_currency(float(height))
+        currency_symbol = self.logic.find_closest_currency(height)
 
         def __update_text():
             """Internal function to handle the currency fact UI updates."""
